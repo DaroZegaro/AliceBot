@@ -13,7 +13,6 @@ const client = new Client({
 const hook = new WebhookClient({
   url: `https://discord.com/api/webhooks/996466948953092176/98r-BzrMp0CIyEOOWbluAsCTpFggaa0x8E1dI6O6X9WBOfkZNlOVKHBZ4HphZq206Z2S`,
 });
-const test = "test";
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands");
 const commandFiles = fs
@@ -23,8 +22,7 @@ const commandFiles = fs
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
   const command = require(filePath);
-  // Set a new item in the Collection
-  // With the key as the command name and the value as the exported module
+  console.log(`Loading ${command.data.name}...`);
   client.commands.set(command.data.name, command);
 }
 
@@ -58,16 +56,43 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.on("messageCreate", (message) => {
-  if (message.author.bot) return;
-
+  if (message.author.bot || message.webhookId) return;
   const { content } = message;
   const capitalized = content[0].toUpperCase() + content.slice(1);
   if (potentialMeows.includes(content.toLowerCase()))
     message.reply(`${capitalized}!`);
+
+  webhookFuckery(message);
+  // hook.edit({
+  //   channel: "997555221569994812",
+  //   name: message.author.username,
+  //   avatarURL: message.author.displayAvatarURL(),
+  // });
+  // hook.send({
+  //   content: message.content,
+  // });
 });
+
+async function webhookFuckery(message) {
+  const { channel } = message;
+  const { cache: channels } = message.guild.channels;
+  if (!channels.find((c) => c.name === `${channel.name}-log`)) {
+    console.log("Couldn't find the channel");
+    await channels
+      .find((c) => c.name.toLowerCase() === "log channels")
+      .createChannel(`${channel.name}-log`, { type: "GUILD_TEXT" });
+  }
+
+  channels
+    .find((c) => c.name.toLowerCase() === `${channel.name}-log`)
+    .createWebhook(message.author.username, {
+      avatar: message.author.displayAvatarURL(),
+    })
+    .then((webhook) => webhook.send(message.content));
+}
+
 setInterval(() => {
   const odd = Math.random();
-  console.log(odd);
   if (odd > 0.9) client.channels.cache.get("970094181852786730").send("Meow!");
 }, 60000);
 
