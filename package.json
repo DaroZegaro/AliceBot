@@ -1,0 +1,21 @@
+{
+  "name": "new-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.19.0"
+  },
+  "dependencies": {
+    "@discordjs/builders": "^0.15.0",
+    "@discordjs/rest": "^0.5.0",
+    "@napi-rs/canvas": "^0.1.25",
+    "discord-api-types": "^0.36.1",
+    "eval": "^0.1.8"
+  }
+}
