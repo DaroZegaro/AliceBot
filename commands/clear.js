@@ -9,7 +9,8 @@ module.exports = {
         .setName("number")
         .setDescription("The number of messages to delete")
         .setRequired(true)
-    ),
+    )
+    .setDefaultMemberPermissions(1 << 13),
   async execute(interaction) {
     const number = interaction.options.getInteger("number");
     try {

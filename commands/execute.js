@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
+const { aliceId } = require("../config.json");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("execute")
@@ -8,8 +9,14 @@ module.exports = {
         .setName("command")
         .setDescription("command to run")
         .setRequired(true)
-    ),
+    )
+    .setDefaultMemberPermissions(1 << 3),
   async execute(interaction) {
+    if (interaction.user.id !== aliceId)
+      return interaction.reply({
+        content: `I'm sorry ${interaction.user.username}, I'm afraid I can't let you do that...`,
+        ephemeral: true,
+      });
     const command = interaction.options.getString("command");
     const client = interaction.client;
     output = new Function("client", "interaction", command);
