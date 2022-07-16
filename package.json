@@ -16,6 +16,8 @@
     "@discordjs/rest": "^0.5.0",
     "@napi-rs/canvas": "^0.1.25",
     "discord-api-types": "^0.36.1",
-    "eval": "^0.1.8"
+    "eval": "^0.1.8",
+    "mysql": "github:mysqljs/mysql",
+    "timestring": "^6.0.0"
   }
 }

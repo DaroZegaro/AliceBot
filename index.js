@@ -2,16 +2,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { Client, Intents, WebhookClient, Collection } = require("discord.js");
 const { token, potentialMeows } = require("./config.json");
-
+const { times } = require("./parse/times.json");
 const client = new Client({
-  intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MESSAGES,
-  ],
-});
-const hook = new WebhookClient({
-  url: `https://discord.com/api/webhooks/996466948953092176/98r-BzrMp0CIyEOOWbluAsCTpFggaa0x8E1dI6O6X9WBOfkZNlOVKHBZ4HphZq206Z2S`,
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 });
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "commands");
@@ -27,14 +20,7 @@ for (const file of commandFiles) {
 }
 
 client.once("ready", async () => {
-  // const channel = client.channels.cache.get("970094181852786730");
-  // const webhooks = await channel.fetchWebhooks();
-  // const webhook = webhooks.find((wh) => wh.token);
-  // webhook.send({
-  //   content: "Webhook test",
-  //   username: "some-username",
-  //   avatarURL: "https://i.imgur.com/AfFp7pu.png",
-  // });
+  parseTime(times);
   console.log("Ready!");
 });
 
@@ -63,14 +49,6 @@ client.on("messageCreate", (message) => {
     message.reply(`${capitalized}!`);
 
   webhookFuckery(message);
-  // hook.edit({
-  //   channel: "997555221569994812",
-  //   name: message.author.username,
-  //   avatarURL: message.author.displayAvatarURL(),
-  // });
-  // hook.send({
-  //   content: message.content,
-  // });
 });
 
 async function webhookFuckery(message) {
@@ -91,9 +69,34 @@ async function webhookFuckery(message) {
     .then((webhook) => webhook.send(message.content));
 }
 
+function parseTime(times) {
+  const now = new Date();
+  times.forEach((elem) => {
+    setTimeout(() => {
+      client.channels.cache
+        .find((c) => c.name === "general")
+        .send(`<@${elem.userId}> ${elem.message}`);
+
+      const newdb = JSON.parse(fs.readFileSync("./parse/times.json"));
+
+      const write = {};
+
+      write.times = newdb.times.filter(
+        (t) =>
+          t.message !== elem.message ||
+          t.completeTime !== elem.completeTime ||
+          t.userId !== elem.userId
+      );
+
+      fs.writeFileSync("./parse/times.json", JSON.stringify(write));
+    }, elem.completeTime - now.getTime());
+  });
+}
+
 setInterval(() => {
   const odd = Math.random();
-  if (odd > 0.9) client.channels.cache.get("970094181852786730").send("Meow!");
+  if (odd > 0.9)
+    client.channels.cache.find((c) => c.name === "general").send("Meow!");
 }, 60000);
 
 client.login(token);
