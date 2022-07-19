@@ -10,17 +10,18 @@ module.exports = {
   async execute(interaction) {
     let label = interaction.options.getString("label") || " ";
 
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
-        .setCustomId("eggplant")
-        .setLabel(label)
-        .setStyle("PRIMARY")
-        .setEmoji("🍆")
+    const rows = ["up", "down", "left", "right"].map((label) =>
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setCustomId(label)
+          .setLabel(label)
+          .setStyle("PRIMARY")
+      )
     );
 
     await interaction.reply({
       content: "Here's your button :3",
-      components: [row],
+      components: rows,
     });
 
     const collector = interaction.channel.createMessageComponentCollector({
@@ -29,7 +30,13 @@ module.exports = {
     });
 
     collector.on("collect", async (button) => {
-      interaction.channel.send("🍑");
+      await button.deferReply();
+      await interaction.channel.send("🍑");
+      await button.deleteReply();
     });
   },
 };
+
+function createBoard() {
+  
+}

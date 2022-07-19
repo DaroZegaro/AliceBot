@@ -16,13 +16,21 @@ module.exports = {
     try {
       await interaction.channel.bulkDelete(number);
 
-      return interaction.reply(`Succesfully deleted \`${number}\` messages!`);
+      return interaction
+        .reply({
+          content: `Succesfully deleted \`${number}\` messages!`,
+          fetchReply: true,
+        })
+        .then((message) => setTimeout(() => message.delete(), 2000));
     } catch (e) {
       console.log(e);
-      return interaction.reply({
-        content: "The attempt to bulk delete the messages has failed",
-        ephemeral: true,
-      });
+      return interaction
+        .reply({
+          content: "The attempt to bulk delete the messages has failed",
+          ephemeral: true,
+          fetchReply: true,
+        })
+        .then((message) => setTimeout(() => message.delete(), 2000));
     }
   },
 };

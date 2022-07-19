@@ -61,12 +61,32 @@ async function webhookFuckery(message) {
       .createChannel(`${channel.name}-log`, { type: "GUILD_TEXT" });
   }
 
-  channels
-    .find((c) => c.name.toLowerCase() === `${channel.name}-log`)
-    .createWebhook(message.author.username, {
-      avatar: message.author.displayAvatarURL(),
-    })
-    .then((webhook) => webhook.send(message.content));
+  const newChannel = await channels.find(
+    (c) => c.name.toLowerCase() === `${channel.name}-log`
+  );
+
+  const hooks = await newChannel.fetchWebhooks();
+  const hook = hooks.find((wh) => wh.token);
+
+  if (!hook) {
+    await newChannel
+      .createWebhook(message.author.username, {
+        avatar: message.author.displayAvatarURL(),
+      })
+      .then((webhook) => {
+        webhook.send({
+          content: message.content,
+          embeds: message.embeds,
+        });
+      });
+  } else {
+    await hook.send({
+      content: message.content,
+      username: message.author.username,
+      avatarURL: message.author.displayAvatarURL(),
+      embeds: message.embeds,
+    });
+  }
 }
 
 function parseTime(times) {
@@ -94,9 +114,15 @@ function parseTime(times) {
 }
 
 setInterval(() => {
+  const { meowToggle: toggle } = JSON.parse(fs.readFileSync("./config.json"));
+  console.log(toggle);
+  if (!toggle) return;
+
+  const meowChannel = client.channels.cache.find((c) => c.name === "meow");
+  if (!meowChannel) return;
   const odd = Math.random();
   if (odd > 0.9)
-    client.channels.cache.find((c) => c.name === "general").send("Meow!");
+    client.channels.cache.find((c) => c.name === "meow").send("Meow!");
 }, 60000);
 
 client.login(token);
